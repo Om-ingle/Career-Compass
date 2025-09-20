@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  mock-data-api:
+    build: ./mock-data-api
+    ports:
+      - "8081:8080"
+    environment:
+      - NODE_ENV=development
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+  ai-agent:
+    build: ./ai-agent
+    ports:
+      - "8080:8080"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - MOCK_DATA_API_URL=http://mock-data-api:8080
+    depends_on:
+      - mock-data-api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  default:
+    name: careercompass-network

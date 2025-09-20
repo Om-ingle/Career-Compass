@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+   <html>
+   <head>
+       <title>CareerCompass Test Dashboard</title>
+       <script src="https://cdn.tailwindcss.com"></script>
+   </head>
+   <body class="bg-gray-100">
+       <div class="container mx-auto p-8">
+           <h1 class="text-3xl font-bold mb-8 text-center">CareerCompass AI Demo</h1>
+           
+           <div class="bg-white p-6 rounded-lg shadow-lg">
+               <h2 class="text-xl font-semibold mb-4">Get Career Analysis</h2>
+               
+               <select id="userSelect" class="w-full p-2 border rounded mb-4">
+                   <option value="user123">Alex Johnson - Recent Graduate</option>
+                   <option value="user456">Sarah Chen - Career Changer</option>
+               </select>
+               
+               <button onclick="getAnalysis()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                   Get AI Career Advice
+               </button>
+               
+               <div id="results" class="mt-6"></div>
+           </div>
+       </div>
+       
+       <script>
+           const AI_AGENT_URL = 'http://YOUR_EXTERNAL_IP:8080'; // Replace with your actual external IP
+           
+           async function getAnalysis() {
+               const userId = document.getElementById('userSelect').value;
+               const resultsDiv = document.getElementById('results');
+               
+               resultsDiv.innerHTML = '<p class="text-blue-500">Analyzing... Please wait.</p>';
+               
+               try {
+                   const response = await fetch(`${AI_AGENT_URL}/api/analyze-career`, {
+                       method: 'POST',
+                       headers: {
+                           'Content-Type': 'application/json',
+                       },
+                       body: JSON.stringify({
+                           userId: userId,
+                           mockDataApiUrl: 'http://mock-data-api-service:8080'
+                       })
+                   });
+                   
+                   const data = await response.json();
+                   
+                   if (data.success) {
+                       displayResults(data);
+                   } else {
+                       resultsDiv.innerHTML = '<p class="text-red-500">Analysis failed. Please try again.</p>';
+                   }
+               } catch (error) {
+                   console.error('Error:', error);
+                   resultsDiv.innerHTML = '<p class="text-red-500">Network error. Please check your connection.</p>';
+               }
+           }
+           
+           function displayResults(data) {
+               const analysis = data.analysis;
+               const resultsDiv = document.getElementById('results');
+               
+               resultsDiv.innerHTML = `
+                   <div class="bg-green-50 p-4 rounded">
+                       <h3 class="font-semibold text-green-800">Career Analysis for ${data.userProfile}</h3>
+                       
+                       <div class="mt-4">
+                           <h4 class="font-semibold">Primary Goal:</h4>
+                           <p class="text-gray-700">${analysis.primaryGoal}</p>
+                       </div>
+                       
+                       <div class="mt-4">
+                           <h4 class="font-semibold">Recommended Skills:</h4>
+                           <ul class="list-disc list-inside text-gray-700">
+                               ${analysis.recommendedSkills.map(skill => `<li>${skill}</li>`).join('')}
+                           </ul>
+                       </div>
+                       
+                       <div class="mt-4">
+                           <h4 class="font-semibold">Suggested Courses:</h4>
+                           <ul class="text-gray-700">
+                               ${analysis.suggestedCourses.map(course => 
+                                   `<li>• ${course.name} (${course.provider}) - ${course.estimatedCost}</li>`
+                               ).join('')}
+                           </ul>
+                       </div>
+                       
+                       <div class="mt-4">
+                           <h4 class="font-semibold">Financial Advice:</h4>
+                           <p class="text-gray-700">${analysis.financialAdvice}</p>
+                       </div>
+                       
+                       <div class="mt-4">
+                           <h4 class="font-semibold">Next Steps:</h4>
+                           <ol class="list-decimal list-inside text-gray-700">
+                               ${analysis.nextSteps.map(step => `<li>${step}</li>`).join('')}
+                           </ol>
+                       </div>
+                   </div>
+               `;
+           }
+       </script>
+   </body>
+   </html>

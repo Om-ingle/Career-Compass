@@ -60,7 +60,7 @@ spec:
         - containerPort: 8080
         env:
         - name: GEMINI_API_KEY
-          value: "AIzaSyBZ03sUMyCdhM-PIQm2cE5Hc0uYyHFpvFk"  # Replace with your actual key
+          value: "GEMINI_API_KEY"  # Replace with your actual key
         resources:
           requests:
             memory: "256Mi"
